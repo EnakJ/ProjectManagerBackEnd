@@ -10,6 +10,7 @@ import sn.enak.projectmanager.services.ProjectServices;
 import java.util.List;
 
 @RestController
+@CrossOrigin("*")
 public class ProjectRestController {
     private ProjectServices projectServices;
     private DtoMapper dtoMapper;
@@ -29,9 +30,8 @@ public class ProjectRestController {
         return projectServices.getProject(projectId);
     }
 
-    @PostMapping("/projects")
+    @PostMapping("/ajoutProject")
     public ProjectDTO newProject(@RequestBody ProjectDTO projectDTO){
-        Project project = dtoMapper.fromProjectDTO(projectDTO);
-        return projectServices.addProject(project);
+        return projectServices.addProject(projectDTO);
     }
 }

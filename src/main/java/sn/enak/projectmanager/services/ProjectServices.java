@@ -1,15 +1,18 @@
 package sn.enak.projectmanager.services;
 
+import org.springframework.data.domain.Page;
 import sn.enak.projectmanager.dtos.*;
 import sn.enak.projectmanager.entities.*;
 import sn.enak.projectmanager.exceptions.*;
+import sn.enak.projectmanager.security.entities.AppRole;
+import sn.enak.projectmanager.security.entities.AppUser;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 
 public interface ProjectServices {
-    ProjectDTO addProject(Project project);
+    ProjectDTO addProject(ProjectDTO projectDTO);
     ProjectDTO getProject(String projectId) throws ProjectNotFoundException;
     List<ProjectDTO> getAllProject();
     List<ProjectDTO> searchProjects(String intitule);
@@ -43,4 +46,10 @@ public interface ProjectServices {
     List<RessourceDTO> getRessourceByProject(ProjectDTO projectDTO);
     List<RessourceDTO> getRessourceByActivity(ActivityDTO activityDTO);
     List<RessourceDTO> getRessourceByTask(TaskDTO taskDTO);
+    AppUserDTO addAppUser(AppUserDTO appUserDTO);
+    AppRoleDTO addAppROle(AppRoleDTO appRoleDTO);
+    void addRoleToUser(String username, String roleName) throws AppUserNotFoundException, AppRoleNotFoundException;
+    AppUser getAppUserByUsername(String username) throws AppUserNotFoundException;
+    AppRole getAppRoleByRoleName(String roleName) throws AppRoleNotFoundException;
+    Page<Task> getTasksPage(int page, int size);
 }

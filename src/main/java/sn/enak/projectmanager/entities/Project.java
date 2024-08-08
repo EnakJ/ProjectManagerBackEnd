@@ -9,6 +9,7 @@ import sn.enak.projectmanager.enums.Categorie.Categorie;
 import sn.enak.projectmanager.enums.Etat.Etat;
 import sn.enak.projectmanager.enums.EtatEnum.TypeEnum;
 import sn.enak.projectmanager.enums.Statut.Statut;
+import sn.enak.projectmanager.security.entities.AppUser;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -42,6 +43,8 @@ public class Project {
     private LocalDate demarragePrevue;
     @DateTimeFormat(pattern = "dd-MM-yyyy")
     private LocalDate deadline;
+    @ManyToOne
+    private AppUser owner;
     @OneToMany(mappedBy = "project")
     private List<Activity> activities;
     @OneToMany(mappedBy = "project")

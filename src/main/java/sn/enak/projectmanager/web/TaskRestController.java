@@ -1,9 +1,12 @@
 package sn.enak.projectmanager.web;
 
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 import sn.enak.projectmanager.dtos.ActivityDTO;
+import sn.enak.projectmanager.dtos.AppRoleDTO;
 import sn.enak.projectmanager.dtos.ProjectDTO;
 import sn.enak.projectmanager.dtos.TaskDTO;
+import sn.enak.projectmanager.entities.Task;
 import sn.enak.projectmanager.exceptions.ActivityNotFoundException;
 import sn.enak.projectmanager.exceptions.ProjectNotFoundException;
 import sn.enak.projectmanager.exceptions.TaskNotFoundException;
@@ -50,5 +53,9 @@ public class TaskRestController {
         return projectServices.addTask(dtoMapper.fromTaskDTO(taskDTO));
     }
 
+    @GetMapping("/tasksPage")
+    public Page<Task> getTasksPage(@RequestParam("page") int page, @RequestParam("size") int size){
+        return this.projectServices.getTasksPage(page, size);
+    }
 
 }

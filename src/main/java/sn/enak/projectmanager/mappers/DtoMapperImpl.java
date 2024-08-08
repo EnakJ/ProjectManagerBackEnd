@@ -4,10 +4,23 @@ package sn.enak.projectmanager.mappers;
 import org.springframework.stereotype.Service;
 import sn.enak.projectmanager.dtos.*;
 import sn.enak.projectmanager.entities.*;
+import sn.enak.projectmanager.security.entities.AppRole;
+import sn.enak.projectmanager.security.entities.AppUser;
+import sn.enak.projectmanager.security.repo.AppRoleRepository;
+import sn.enak.projectmanager.security.repo.AppUserRepository;
+
 import static org.springframework.beans.BeanUtils.copyProperties;
 
 @Service
 public class DtoMapperImpl implements DtoMapper {
+    private AppUserRepository appUserRepository;
+    private AppRoleRepository appRoleRepository;
+
+    public DtoMapperImpl(AppUserRepository appUserRepository, AppRoleRepository appRoleRepository) {
+        this.appUserRepository = appUserRepository;
+        this.appRoleRepository = appRoleRepository;
+    }
+
     @Override
     public ProjectDTO fromProject(Project project) {
         ProjectDTO projectDTO = new ProjectDTO();
@@ -115,5 +128,37 @@ public class DtoMapperImpl implements DtoMapper {
         copyProperties(ressourceDTO, ressource);
 
         return ressource;
+    }
+
+    @Override
+    public AppUserDTO fromAppUser(AppUser appUser) {
+        AppUserDTO appUserDTO = new AppUserDTO();
+        copyProperties(appUser, appUserDTO);
+
+        return appUserDTO;
+    }
+
+    @Override
+    public AppUser fromAppUserDTO(AppUserDTO appUserDTO) {
+        AppUser appUser = new AppUser();
+        copyProperties(appUserDTO, appUser);
+
+        return appUser;
+    }
+
+    @Override
+    public AppRoleDTO fromAppRole(AppRole appRole) {
+        AppRoleDTO appRoleDTO = new AppRoleDTO();
+        copyProperties(appRole, appRoleDTO);
+
+        return appRoleDTO;
+    }
+
+    @Override
+    public AppRole fromAppRoleDTO(AppRoleDTO appRoleDTO) {
+        AppRole appRole = new AppRole();
+        copyProperties(appRoleDTO, appRole);
+
+        return appRole;
     }
 }

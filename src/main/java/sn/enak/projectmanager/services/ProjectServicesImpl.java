@@ -1,5 +1,7 @@
 package sn.enak.projectmanager.services;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sn.enak.projectmanager.dtos.*;
@@ -7,10 +9,15 @@ import sn.enak.projectmanager.entities.*;
 import sn.enak.projectmanager.exceptions.*;
 import sn.enak.projectmanager.mappers.DtoMapper;
 import sn.enak.projectmanager.repositories.*;
+import sn.enak.projectmanager.security.entities.AppRole;
+import sn.enak.projectmanager.security.entities.AppUser;
+import sn.enak.projectmanager.security.repo.AppRoleRepository;
+import sn.enak.projectmanager.security.repo.AppUserRepository;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Service @Transactional
 public class ProjectServicesImpl implements ProjectServices {
@@ -21,6 +28,8 @@ public class ProjectServicesImpl implements ProjectServices {
     private EvenementRepository evenementRepository;
     private CollaborateurRepository collaborateurRepository;
     private RessourceRepository ressourceRepository;
+    private AppUserRepository appUserRepository;
+    private AppRoleRepository appRoleRepository;
 
     public ProjectServicesImpl(
             DtoMapper dtoMapper,
@@ -29,7 +38,9 @@ public class ProjectServicesImpl implements ProjectServices {
             TaskRepository taskRepository,
             EvenementRepository evenementRepository,
             CollaborateurRepository collaborateurRepository,
-            RessourceRepository ressourceRepository
+            RessourceRepository ressourceRepository,
+            AppUserRepository appUserRepository,
+            AppRoleRepository appRoleRepository
             ) {
         this.dtoMapper = dtoMapper;
         this.projectRepository = projectRepository;
@@ -38,13 +49,15 @@ public class ProjectServicesImpl implements ProjectServices {
         this.evenementRepository = evenementRepository;
         this.collaborateurRepository = collaborateurRepository;
         this.ressourceRepository = ressourceRepository;
+        this.appUserRepository = appUserRepository;
+        this.appRoleRepository = appRoleRepository;
     }
 
 
     @Override
-    public ProjectDTO addProject(Project project) {
+    public ProjectDTO addProject(ProjectDTO projectSTO) {
 
-        Project save = projectRepository.save(project);
+        Project save = projectRepository.save(dtoMapper.fromProjectDTO(projectSTO));
         return dtoMapper.fromProject(save);
     }
 
@@ -287,4 +300,52 @@ public class ProjectServicesImpl implements ProjectServices {
         return ressourceRepository.getAllByTask(task).stream().map(
                 ressource -> dtoMapper.fromResource(ressource)).toList();
     }
+
+    @Override
+    public AppUserDTO addAppUser(AppUserDTO appUserDTO) {
+        AppUser appUser = dtoMapper.fromAppUserDTO(appUserDTO);
+
+        AppUser savedAppUser = appUserRepository.save(appUser);
+        return dtoMapper.fromAppUser(savedAppUser);
+    }
+
+    @Override
+    public AppRoleDTO addAppROle(AppRoleDTO appRoleDTO) {
+        AppRole appRole = dtoMapper.fromAppRoleDTO(appRoleDTO);
+
+        AppRole savedAppRole = appRoleRepository.save(appRole);
+        return dtoMapper.fromAppRole(savedAppRole);
+    }
+
+    @Override
+    public void addRoleToUser(String  username, String roleName) throws AppUserNotFoundException, AppRoleNotFoundException {
+        AppUser appUser = this.getAppUserByUsername(username);
+        AppRole appRole = this.getAppRoleByRoleName(roleName);
+
+        List<AppRole> roles = appUser.getRoles();
+        roles.add(appRole);
+        appUser.setRoles(roles);
+    }
+
+    @Override
+    public AppUser getAppUserByUsername(String username) throws AppUserNotFoundException {
+        AppUser appUser = appUserRepository.getAppUserByUsername(username).orElse(null);
+        if (appUser == null) throw new AppUserNotFoundException("AppUser with username : "+username+" not found !");
+
+        return appUser;
+    }
+
+    @Override
+    public AppRole getAppRoleByRoleName(String roleName) throws AppRoleNotFoundException {
+        AppRole appRole = appRoleRepository.getAppRoleByRoleName(roleName).orElse(null);
+        if (appRole == null) throw new AppRoleNotFoundException("AppRole with roleName : "+roleName+" not found !");
+
+        return appRole;
+    }
+
+    @Override
+    public Page<Task> getTasksPage(int page, int size) {
+        return taskRepository.getTasksPerPage(PageRequest.of(page, size));
+    }
+
 }
